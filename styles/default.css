@@ -1,0 +1,50 @@
+body {
+	background-color: #333333;
+	color: #ccccaa;
+	font-family: Helvetica, Arial, sans-serif;
+}
+
+.page-title {
+	padding: 3px;
+	background-color: #3c3c3c;
+	font-size: 18px;
+	font-style: normal;
+}
+
+.menu {
+	margin-bottom: 10px;
+	padding: 10px;
+	border-bottom: solid 1px #444444;
+}
+
+.menu a {
+	color: #eeeeee;
+	font-size: 12px;
+}
+
+.content-text {
+	margin-top: 15px;
+	margin-left: 10px;
+	padding: 3px;
+	font-size: 14px;
+	font-style: normal;
+}
+
+.content-text a {
+	color: #ccccaa;
+}
+
+.editbox {
+	margin-top: 20px;
+	padding:5px;
+	background-color: #444444;
+	color: #ccccaa;
+	font-family: Helvetica, Arial, sans-serif;
+	border:solid 1px #777777;
+}
+
+.button {
+	background-color: #ccccaa;
+	color: #444444;
+	border-style: solid;
+}

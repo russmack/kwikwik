@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Kwikwik - {{.Title}}</title>
+
+		<link type="text/css" rel="stylesheet" href="/styles/default.css">
+	</head>
+
+	<body>
+		<div class="page-title">Editing: {{.Title}}</div>
+
+		<div class="menu">[ <a href="/">index</a> ]</div>
+
+		<form action="/save/{{.Title}}" method="POST">
+			<div><textarea name="body" rows="20" cols="80" class="editbox">{{printf "%s" .Body}}</textarea></div>
+			<div><input type="submit" value="Save" class="button"></div>
+		</form>
+	</body>
+</html>
