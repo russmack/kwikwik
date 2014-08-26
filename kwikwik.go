@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -27,7 +28,9 @@ var (
 		templatesDir+"view.html",
 		templatesDir+"edit.html",
 		templatesDir+"error.html"))
-	validPath = regexp.MustCompile(`^/((view|edit|save|styles|error)/([a-zA-Z0-9\.\-_]*))?$`)
+	linkPattern  = regexp.MustCompile(`(^| )+([a-zA-Z0-9\-\._]+)\.txt`)
+	linkTemplate = `$1<a href="view/$2">$2</a>`
+	validPath    = regexp.MustCompile(`^/((view|edit|save|styles|error)/([a-zA-Z0-9\.\-_]*))?$`)
 )
 
 type Model map[string]interface{}
@@ -39,9 +42,26 @@ type Page struct {
 
 func main() {
 	flag.Parse()
+	checkEnvironment()
 	registerHandlers()
 	fmt.Println("Running... ( port", *port, ")")
 	http.ListenAndServe(":"+strconv.Itoa(*port), nil)
+}
+
+func checkEnvironment() {
+	_, err := os.Stat(dataDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = os.Mkdir(dataDir, 0644)
+			if err != nil {
+				fmt.Println(`Unable to create "notes" directory:`, err)
+				os.Exit(0)
+			}
+		} else {
+			fmt.Println(`Unable to check existence of "notes" directory:`, err)
+			os.Exit(0)
+		}
+	}
 }
 
 func registerHandlers() {
@@ -55,7 +75,7 @@ func registerHandlers() {
 
 func (p *Page) save() error {
 	filename := p.Title + fileExt
-	return ioutil.WriteFile(dataDir+filename, []byte(p.Body), 0660)
+	return ioutil.WriteFile(dataDir+filename, []byte(p.Body), 0644)
 }
 
 func (p *Page) load(title string) (*Page, error) {
@@ -73,15 +93,19 @@ func (p *Page) load(title string) (*Page, error) {
 func buildModel(p *Page, asHtml bool) Model {
 	b := p.Body
 	if asHtml {
-		b = strings.Replace(p.Body, "\n", "<br />", -1)
-		link := regexp.MustCompile(`(^| )+([a-zA-Z0-9\-\._]+)\.txt`)
-		b = link.ReplaceAllString(b, `$1<a href="view/$2">$2</a>`)
+		b = parseText(b)
 	}
 	m := Model{
 		"Title": p.Title,
 		"Body":  template.HTML(b),
 	}
 	return m
+}
+
+func parseText(body string) string {
+	b := strings.Replace(body, "\n", "<br />", -1)
+	b = linkPattern.ReplaceAllString(b, linkTemplate)
+	return b
 }
 
 func styleHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -109,7 +133,7 @@ func indexHandler(w http.ResponseWriter, req *http.Request, title string) {
 func errorHandler(w http.ResponseWriter, req *http.Request, title string) {
 	//title = "error"
 	//p := &Page{Title: title}
-	p := Page{}
+	p := &Page{}
 	model := buildModel(p, true)
 	renderTemplate(w, "error", model)
 }
