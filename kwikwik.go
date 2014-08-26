@@ -28,7 +28,7 @@ var (
 		templatesDir+"view.html",
 		templatesDir+"edit.html",
 		templatesDir+"error.html"))
-	linkPattern  = regexp.MustCompile(`(^| )+([a-zA-Z0-9\-\._]+)\.txt`)
+	linkPattern  = regexp.MustCompile(`(\b)([a-zA-Z0-9\-\._]+)\.txt`)
 	linkTemplate = `$1<a href="/view/$2">$2</a>`
 	validPath    = regexp.MustCompile(`^/((view|edit|save|styles|error)/([a-zA-Z0-9\.\-_]*))?$`)
 )
