@@ -28,9 +28,10 @@ var (
 		templatesDir+"view.html",
 		templatesDir+"edit.html",
 		templatesDir+"error.html"))
-	linkPattern  = regexp.MustCompile(`(\b)([a-zA-Z0-9\-\._]+)\.txt`)
-	linkTemplate = `$1<a href="/view/$2">$2</a>`
-	validPath    = regexp.MustCompile(`^/((view|edit|save|styles|error)/([a-zA-Z0-9\.\-_]*))?$`)
+	linkPattern      = regexp.MustCompile(`(\b)([a-zA-Z0-9\-\._]+)\.txt`)
+	linkTemplate     = `$1<a href="/view/$2">$2</a>`
+	deadLinkTemplate = `$1<a href="/view/$2">$2</a> [no such file] `
+	validPath        = regexp.MustCompile(`^/((view|edit|save|styles|error)/([a-zA-Z0-9\.\-_]*))?$`)
 )
 
 type Model map[string]interface{}
@@ -104,7 +105,16 @@ func buildModel(p *Page, asHtml bool) Model {
 
 func parseText(body string) string {
 	b := strings.Replace(body, "\n", "<br />", -1)
-	b = linkPattern.ReplaceAllString(b, linkTemplate)
+	b = linkPattern.ReplaceAllStringFunc(b, func(s string) string {
+		_, err := os.Stat(dataDir + s)
+		if err == nil {
+			r := linkPattern.ReplaceAllString(s, linkTemplate)
+			return r
+		} else {
+			r := linkPattern.ReplaceAllString(s, deadLinkTemplate)
+			return r
+		}
+	})
 	return b
 }
 
