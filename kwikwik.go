@@ -104,7 +104,9 @@ func buildModel(p *Page, asHtml bool) Model {
 }
 
 func parseText(body string) string {
-	b := strings.Replace(body, "\n", "<br />", -1)
+	b := strings.Replace(body, " ", "&nbsp;", -1)
+	b = strings.Replace(b, "\t", "&nbsp;&nbsp;&nbsp;&nbsp;", -1)
+	b = strings.Replace(b, "\n", "<br />", -1)
 	b = linkPattern.ReplaceAllStringFunc(b, func(s string) string {
 		_, err := os.Stat(dataDir + s)
 		if err == nil {
