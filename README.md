@@ -4,7 +4,7 @@ kwikwik
 Fills the gap between loose text files and excessive wikis.
 A lightweight stand-alone wiki, providing text files with links.
 
-A standalone http server.
+A standalone http server/app.
 
 Serves .txt files from a subdirectory.
 
