@@ -23,11 +23,7 @@ var (
 	port = flag.Int("port", defaultPort, "Specify the listening port.")
 )
 var (
-	templates = template.Must(template.ParseFiles(
-		templatesDir+"index.html",
-		templatesDir+"view.html",
-		templatesDir+"edit.html",
-		templatesDir+"error.html"))
+	templates        *template.Template
 	linkPattern      = regexp.MustCompile(`(\b)([a-zA-Z0-9\-\._]+)\.txt`)
 	linkTemplate     = `$1<a href="/view/$2">$2</a>`
 	deadLinkTemplate = `$1<a href="/view/$2">$2</a> [no such file] `
@@ -62,6 +58,24 @@ func checkEnvironment() {
 			fmt.Println(`Unable to check existence of "notes" directory:`, err)
 			os.Exit(0)
 		}
+	}
+	_, err = os.Stat(templatesDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			// Template dir does not exist
+			fmt.Println("Using default templates.")
+			templates = template.Must(template.New("index.html").Parse(defaultTemplateIndexHtml))
+			template.Must(templates.New("view.html").Parse(defaultTemplateViewHtml))
+			template.Must(templates.New("edit.html").Parse(defaultTemplateEditHtml))
+			template.Must(templates.New("error.html").Parse(defaultTemplateErrorHtml))
+		}
+	} else {
+		fmt.Println("Using file templates.")
+		templates = template.Must(template.ParseFiles(
+			templatesDir+"index.html",
+			templatesDir+"view.html",
+			templatesDir+"edit.html",
+			templatesDir+"error.html"))
 	}
 }
 
@@ -187,6 +201,7 @@ func saveHandler(w http.ResponseWriter, req *http.Request, title string) {
 func renderTemplate(w http.ResponseWriter, tmpl string, model Model) {
 	err := templates.ExecuteTemplate(w, tmpl+".html", model)
 	if err != nil {
+		fmt.Println("Error in rendertemplate: ", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -195,8 +210,6 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 	return func(w http.ResponseWriter, req *http.Request) {
 		pathParts := validPath.FindStringSubmatch(req.URL.Path)
 		if pathParts == nil {
-			//u := &url.URL{Path: req.URL.Path}
-			//encodedPath := u.String()
 			http.Redirect(w, req, "/error/", http.StatusFound)
 			return
 		}
