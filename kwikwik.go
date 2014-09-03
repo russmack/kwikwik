@@ -27,7 +27,7 @@ var (
 	linkPattern      = regexp.MustCompile(`(\b)([a-zA-Z0-9\-\._]+)\.txt`)
 	linkTemplate     = `$1<a href="/view/$2">$2</a>`
 	deadLinkTemplate = `$1<a href="/view/$2">$2</a> [no such file] `
-	validPath        = regexp.MustCompile(`^/((view|edit|save|styles|error)/([a-zA-Z0-9\.\-_]*))?$`)
+	validPath        = regexp.MustCompile(`^/((view|edit|save|styles|error)/([a-zA-Z0-9\.\-_]*))?(favicon.ico)?$`)
 )
 
 type Model map[string]interface{}
@@ -85,6 +85,7 @@ func registerHandlers() {
 	http.HandleFunc("/edit/", makeHandler(editHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
 	http.HandleFunc("/styles/", makeHandler(styleHandler))
+	http.HandleFunc("/favicon.ico", makeHandler(faviconHandler))
 	http.HandleFunc("/error/", makeHandler(errorHandler))
 }
 
@@ -132,6 +133,18 @@ func parseText(body string) string {
 		}
 	})
 	return b
+}
+
+func faviconHandler(w http.ResponseWriter, r *http.Request, title string) {
+	filename := "favicon.ico"
+	body, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println("favicon.ico handler err", err)
+		return
+	}
+	w.Header().Set("content-type", "image/x-icon")
+	w.Write(body)
+	return
 }
 
 func styleHandler(w http.ResponseWriter, r *http.Request, title string) {
