@@ -1,1 +1,1 @@
-go build kwikwik.go templates.go
+go build kwikwik.go templates.go favicon.go

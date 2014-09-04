@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"html/template"
@@ -136,10 +137,9 @@ func parseText(body string) string {
 }
 
 func faviconHandler(w http.ResponseWriter, r *http.Request, title string) {
-	filename := "favicon.ico"
-	body, err := ioutil.ReadFile(filename)
+	body, err := base64.StdEncoding.DecodeString(faviconBase64)
 	if err != nil {
-		fmt.Println("favicon.ico handler err", err)
+		fmt.Println("favicon handler decoding error:", err)
 		return
 	}
 	w.Header().Set("content-type", "image/x-icon")
@@ -151,7 +151,7 @@ func styleHandler(w http.ResponseWriter, r *http.Request, title string) {
 	filename := "styles/" + title
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
-		fmt.Println("style handler err", err)
+		fmt.Println("Styles handler err:", err)
 		return
 	}
 	w.Header().Set("content-type", "text/css")
