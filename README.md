@@ -1,13 +1,17 @@
 # Kwikwik
 
-Fills the gap between loose text files and excessive wikis.
-A lightweight stand-alone wiki, providing text files with links.
+* Fills the gap between loose text files and excessive wikis.
+* A lightweight stand-alone wiki, providing text files with links.
+* A stand-alone http server/app.
+* Serves .txt files from a subdirectory.
+* The name of any .txt files mentioned inside a text file will be converted to a hyperlink.
 
-A standalone http server/app.
+![Progress](http://progressed.io/bar/90?title=Good)
 
-Serves .txt files from a subdirectory.
+---
+#### Status: Useful.
+---
 
-The name of any .txt files mentioned inside a text file will be converted to a hyperlink.
 
 ### Screenshots
 ---
@@ -16,3 +20,9 @@ The name of any .txt files mentioned inside a text file will be converted to a h
 ![screenshot 2](screenshots/screenshot2.png)
 
 ![screenshot 3](screenshots/screenshot3.png)
+
+
+## License
+BSD 3-Clause: [LICENSE.txt](LICENSE.txt)
+
+[<img alt="LICENSE" src="http://img.shields.io/pypi/l/Django.svg?style=flat-square"/>](LICENSE.txt)
