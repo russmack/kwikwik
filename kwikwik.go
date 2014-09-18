@@ -1,3 +1,4 @@
+// Kwikwik is web based text file interface, lighter than a wiki.
 package main
 
 import (
@@ -46,6 +47,7 @@ func main() {
 	http.ListenAndServe(":"+strconv.Itoa(*port), nil)
 }
 
+// checkEnvironment checks if required dirs and files exist, uses defaults if not.
 func checkEnvironment() {
 	_, err := os.Stat(dataDir)
 	if err != nil {
@@ -80,6 +82,8 @@ func checkEnvironment() {
 	}
 }
 
+// registerHandlers registers with the HTTP request multiplexer the request handlers and
+// the associated paths they handle.
 func registerHandlers() {
 	http.HandleFunc("/", makeHandler(indexHandler))
 	http.HandleFunc("/view/", makeHandler(viewHandler))
@@ -90,11 +94,13 @@ func registerHandlers() {
 	http.HandleFunc("/error/", makeHandler(errorHandler))
 }
 
+// save saves an edited text file to disk.
 func (p *Page) save() error {
 	filename := p.Title + fileExt
 	return ioutil.WriteFile(dataDir+filename, []byte(p.Body), 0644)
 }
 
+// load loads a text file from disk.
 func (p *Page) load(title string) (*Page, error) {
 	filename := title + fileExt
 	filename = strings.Replace(filename, "%20", " ", -1)
@@ -107,6 +113,7 @@ func (p *Page) load(title string) (*Page, error) {
 	return p, nil
 }
 
+// buildModel builds the data model that is passed to the html template.
 func buildModel(p *Page, asHtml bool) Model {
 	b := p.Body
 	if asHtml {
@@ -119,6 +126,7 @@ func buildModel(p *Page, asHtml bool) Model {
 	return m
 }
 
+// parseText replaces certain string patterns in a text file with HTML.
 func parseText(body string) string {
 	b := strings.Replace(body, " ", "&nbsp;", -1)
 	b = strings.Replace(b, "\t", "&nbsp;&nbsp;&nbsp;&nbsp;", -1)
@@ -147,6 +155,7 @@ func faviconHandler(w http.ResponseWriter, r *http.Request, title string) {
 	return
 }
 
+// styleHandler handles css requests.
 func styleHandler(w http.ResponseWriter, r *http.Request, title string) {
 	filename := "styles/" + title
 	body, err := ioutil.ReadFile(filename)
@@ -211,6 +220,7 @@ func saveHandler(w http.ResponseWriter, req *http.Request, title string) {
 	http.Redirect(w, req, "/view/"+title, http.StatusFound)
 }
 
+// renderTemplate renders the html template with the data model.
 func renderTemplate(w http.ResponseWriter, tmpl string, model Model) {
 	err := templates.ExecuteTemplate(w, tmpl+".html", model)
 	if err != nil {
@@ -219,6 +229,7 @@ func renderTemplate(w http.ResponseWriter, tmpl string, model Model) {
 	}
 }
 
+// makeHandler wraps handler functions with common functionality.
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		pathParts := validPath.FindStringSubmatch(req.URL.Path)
